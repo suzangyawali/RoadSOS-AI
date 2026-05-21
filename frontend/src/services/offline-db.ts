@@ -17,16 +17,21 @@ interface OfflineDB {
   };
   emergencies: {
     key: string;
-    value: {
-      id: string;
-      latitude: number | null;
-      longitude: number | null;
-      severity: string;
-      status: string;
-      message: string;
-      created_at: string;
-      synced: boolean;
-    };
+      value: {
+        id: string;
+        latitude: number | null;
+        longitude: number | null;
+        severity: string;
+        status: string;
+        message: string;
+        created_at: string;
+        synced: boolean;
+        source?: string;
+        reporter_type?: string;
+        media_type?: string;
+        ai_confidence?: number;
+        packet_state?: string;
+      };
   };
   emergency_data: {
     key: string;

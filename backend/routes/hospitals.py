@@ -28,6 +28,18 @@ AMBULANCE_SERVICES = [
     {"id": "a3", "name": "Centralized Accident & Trauma Services (CATS)", "type": "Ambulance", "phone": "1099", "available": True},
 ]
 
+TOWING_SERVICES = [
+    {"id": "t1", "name": "Express Highway Towing", "type": "Towing Service", "latitude": 28.5521, "longitude": 77.2632, "phone": "+91-98765-43210", "rating": 4.5, "price_per_km": 150},
+    {"id": "t2", "name": "Delhi Quick Tow Assist", "type": "Towing Service", "latitude": 28.5821, "longitude": 77.2132, "phone": "+91-99887-76655", "rating": 4.2, "price_per_km": 120},
+    {"id": "t3", "name": "Golden Hour Recovery Services", "type": "Towing Service", "latitude": 28.5321, "longitude": 77.2932, "phone": "+91-91234-56789", "rating": 4.7, "price_per_km": 200},
+]
+
+PUNCTURE_SHOPS = [
+    {"id": "s1", "name": "Verma Puncture & Repair Shop", "type": "Puncture Shop", "latitude": 28.5621, "longitude": 77.2332, "phone": "+91-95432-10987", "rating": 4.4, "24_hours": True},
+    {"id": "s2", "name": "Metro Tyre & Tube Repair", "type": "Puncture Shop", "latitude": 28.5421, "longitude": 77.2032, "phone": "+91-96543-21098", "rating": 4.0, "24_hours": False},
+    {"id": "s3", "name": "NH-24 Tyre Service Station", "type": "Puncture Shop", "latitude": 28.6221, "longitude": 77.3032, "phone": "+91-97654-32109", "rating": 4.6, "24_hours": True},
+]
+
 
 def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     R = 6371
@@ -66,6 +78,44 @@ def nearby_police():
 @hospitals_bp.route("/ambulance/services", methods=["GET"])
 def ambulance_services():
     return jsonify(AMBULANCE_SERVICES)
+
+
+@hospitals_bp.route("/towing/nearby", methods=["GET"])
+def nearby_towing():
+    lat = request.args.get("lat", type=float)
+    lon = request.args.get("lon", type=float)
+    radius = request.args.get("radius", default=50, type=float)
+
+    if lat is None or lon is None:
+        return jsonify(TOWING_SERVICES)
+
+    results = []
+    for t in TOWING_SERVICES:
+        dist = haversine(lat, lon, t["latitude"], t["longitude"])
+        if dist <= radius:
+            results.append({**t, "distance_km": round(dist, 2)})
+
+    results.sort(key=lambda x: x["distance_km"])
+    return jsonify(results)
+
+
+@hospitals_bp.route("/puncture/nearby", methods=["GET"])
+def nearby_puncture():
+    lat = request.args.get("lat", type=float)
+    lon = request.args.get("lon", type=float)
+    radius = request.args.get("radius", default=50, type=float)
+
+    if lat is None or lon is None:
+        return jsonify(PUNCTURE_SHOPS)
+
+    results = []
+    for p in PUNCTURE_SHOPS:
+        dist = haversine(lat, lon, p["latitude"], p["longitude"])
+        if dist <= radius:
+            results.append({**p, "distance_km": round(dist, 2)})
+
+    results.sort(key=lambda x: x["distance_km"])
+    return jsonify(results)
 
 
 @hospitals_bp.route("/routes/emergency", methods=["GET"])

@@ -8,7 +8,7 @@ interface MapMarker {
   latitude: number;
   longitude: number;
   label: string;
-  type: "hospital" | "police" | "user" | "accident";
+  type: "hospital" | "police" | "user" | "accident" | "towing" | "puncture";
 }
 
 interface EmergencyMapProps {
@@ -24,6 +24,8 @@ const MARKER_COLORS = {
   police: "#3b82f6",
   user: "#ef4444",
   accident: "#f59e0b",
+  towing: "#f97316",
+  puncture: "#a855f7",
 };
 
 export function EmergencyMap({

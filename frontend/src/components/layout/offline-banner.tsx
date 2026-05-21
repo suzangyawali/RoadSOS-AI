@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { WifiOff } from "lucide-react";
+import { HydrationWrapper } from "@/components/hydration-wrapper";
 import { useEmergencyStore } from "@/store/emergency-store";
+import { WifiOff } from "lucide-react";
+import { useEffect } from "react";
 
-export function OfflineBanner() {
+function OfflineBannerContent() {
   const isOffline = useEmergencyStore((s) => s.isOffline);
   const setOffline = useEmergencyStore((s) => s.setOffline);
 
@@ -29,5 +30,13 @@ export function OfflineBanner() {
       <WifiOff className="h-4 w-4" />
       <span>You are offline — Emergency features are still available</span>
     </div>
+  );
+}
+
+export function OfflineBanner() {
+  return (
+    <HydrationWrapper>
+      <OfflineBannerContent />
+    </HydrationWrapper>
   );
 }

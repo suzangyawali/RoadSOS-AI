@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -10,13 +11,18 @@ def create_app():
     app = Flask(__name__)
     
     app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "roadsos-dev-secret-key-change-in-prod")
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=30)
     app.config["OPENAI_API_KEY"] = os.getenv("OPENAI_API_KEY", "")
     app.config["TWILIO_ACCOUNT_SID"] = os.getenv("TWILIO_ACCOUNT_SID", "")
     app.config["TWILIO_AUTH_TOKEN"] = os.getenv("TWILIO_AUTH_TOKEN", "")
     app.config["TWILIO_PHONE_NUMBER"] = os.getenv("TWILIO_PHONE_NUMBER", "")
     app.config["MONGODB_URI"] = os.getenv("MONGODB_URI", "mongodb://localhost:27017/roadsos")
 
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {
+        "origins": "*",
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }})
     JWTManager(app)
 
     from routes.emergency import emergency_bp
@@ -25,6 +31,9 @@ def create_app():
     from routes.severity import severity_bp
     from routes.analytics import analytics_bp
     from routes.auth import auth_bp
+    from routes.rescuer import rescuer_bp
+    from routes.government import government_bp
+    from routes.admin import admin_bp
 
     app.register_blueprint(emergency_bp, url_prefix="/api")
     app.register_blueprint(hospitals_bp, url_prefix="/api")
@@ -32,6 +41,9 @@ def create_app():
     app.register_blueprint(severity_bp, url_prefix="/api")
     app.register_blueprint(analytics_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api")
+    app.register_blueprint(rescuer_bp, url_prefix="/api")
+    app.register_blueprint(government_bp, url_prefix="/api")
+    app.register_blueprint(admin_bp, url_prefix="/api")
 
     @app.route("/api/health")
     def health():
@@ -41,4 +53,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5001)
